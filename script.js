@@ -130,6 +130,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Add this function near the top or after displayGallery
+    function adjustGalleryForOverflow() {
+        const gallery = document.getElementById('photo-gallery-display');
+        const cardsContainer = document.querySelector('.photography-cards-container');
+        if (!gallery || !cardsContainer) return;
+
+        // Reset gap and margin first
+        cardsContainer.style.gap = "2rem";
+        gallery.style.marginLeft = "";
+
+        // Get bounding rectangles
+        const galleryRect = gallery.getBoundingClientRect();
+        const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+
+        // If gallery is cut off on the right, shift it left
+        if (galleryRect.right > viewportWidth) {
+            // Reduce the gap first
+            cardsContainer.style.gap = "0.5rem";
+            // Calculate how much to shift left
+            const overflow = galleryRect.right - viewportWidth;
+            // Only shift left if overflow is positive
+            if (overflow > 0) {
+                gallery.style.marginLeft = `-${overflow + 8}px`; // +8 for a little buffer
+            }
+        }
+    }
+
     // Function to display the gallery in the container
     const displayGallery = (folder) => {
         if (!galleryDisplayContainer) return; // Guard clause
@@ -155,7 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
             );
             // Make the container visible
             galleryDisplayContainer.classList.add('visible');
-            galleryDisplayContainer.style.display = 'block'; // Ensure display is block
+            galleryDisplayContainer.style.display = 'block';
+
+            // Adjust for overflow
+            adjustGalleryForOverflow();
 
             // Scroll the gallery container into view
             galleryDisplayContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
